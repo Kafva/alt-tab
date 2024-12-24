@@ -23,10 +23,8 @@ func hasGUIWindow(_ app: NSRunningApplication) -> Bool {
 
 if (CommandLine.arguments.contains { $0 == "--help" || $0 == "-h" }) {
     print("""
-    Simplified alt-tab switcher, will switch from the active window
-    on the current workspace to an inactive window on the same workspace.
-    Only meant to work well for workflows with two windows on a workspace.
-    Use karabiner elements with `shell_command` to create a mapping.
+    Basic alt-tab switcher, will switch from the active window on the current 
+    desktop to an inactive window on the same desktop.
     """)
     exit(1)
 }
