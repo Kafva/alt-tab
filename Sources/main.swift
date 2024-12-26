@@ -14,7 +14,7 @@ if (CommandLine.arguments.contains { $0 == "--help" || $0 == "-h" }) {
 // We can only switch focus per application with an NSRunningApplication, not per window.
 // To switch focus per window we need to use the Accessibility API or another shortcut.
 
-// Get a window information for all apps on the current screen
+// Get window information for all apps on the current screen
 let infoList = CGWindowListCopyWindowInfo([.excludeDesktopElements, .optionOnScreenOnly],
                                           kCGNullWindowID) as NSArray? as? [[String: Any]] ?? []
 // Only include those that are active (at layer 0)
