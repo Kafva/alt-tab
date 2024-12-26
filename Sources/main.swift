@@ -1,41 +1,43 @@
 #!/usr/bin/env swift
 import AppKit
 
-func hasGUIWindow(_ app: NSRunningApplication) -> Bool {
-    guard let appName = app.localizedName else {
-        print("Unable to get application name: \(app)")
-        return false
-    }
-
-    let options: CGWindowListOption = [.excludeDesktopElements, .optionOnScreenOnly]
-    let windowInfoList = CGWindowListCopyWindowInfo(options, kCGNullWindowID)
-                            as NSArray? as? [[String: Any]] ?? []
-
-    for windowInfo in windowInfoList {
-        if let ownerName = windowInfo[kCGWindowOwnerName as String] as? String,
-           ownerName == appName {
-            return true
-        }
-    }
-
-    return false
-}
-
 if (CommandLine.arguments.contains { $0 == "--help" || $0 == "-h" }) {
     print("""
-    Basic alt-tab switcher, will switch from the active window on the current 
-    desktop to an inactive window on the same desktop.
+    Basic alt-tab switcher, will switch from the active app on the current
+    desktop to an inactive app on the same desktop.
     """)
     exit(1)
 }
 
-let inactiveGuiApps = NSWorkspace.shared.runningApplications
-                                .filter{ !$0.isActive && hasGUIWindow($0) }
+// NSWorkspace.shared.runningApplications does not have a separate entry for each window.
+// E.g. if two Firefox windows are open, there will only be one NSRunningApplication in the array.
+// We can only switch focus per application with an NSRunningApplication, not per window.
+// To switch focus per window we need to use the Accessibility API or another shortcut.
 
-guard let firstInactiveApp = inactiveGuiApps.first else {
-    print("No inactive app to switch to")
-    exit(0)
+// Get a window information for all apps on the current screen
+let infoList = CGWindowListCopyWindowInfo([.excludeDesktopElements, .optionOnScreenOnly],
+                                          kCGNullWindowID) as NSArray? as? [[String: Any]] ?? []
+// Only include those that are active (at layer 0)
+let windowList = infoList.filter{ $0["kCGWindowLayer"] as! Int == 0 }
+
+// Find the first inactive app that matches one of the windows on screen
+let firstInactiveApp = NSWorkspace.shared.runningApplications.first {
+    !$0.isActive &&
+    windowList.map{ $0["kCGWindowOwnerPID"] as! pid_t }.contains($0.processIdentifier)
 }
 
-print("Activating: \(firstInactiveApp.localizedName ?? "(No name)")")
+guard let firstInactiveApp else {
+    if windowList.count <= 1 {
+        print("No inactive app to switch to")
+        exit(0)
+    }
+    else {
+        // ... but there is at least one inactive window
+        print("No inactive app to switch to [\(windowList.count) window(s)]")
+        exit(2)
+    }
+}
+
+let name = firstInactiveApp.localizedName ?? "(No name)"
+print("Activating: \(name) [\(windowList.count) window(s)]")
 firstInactiveApp.activate()

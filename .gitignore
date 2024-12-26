@@ -1,4 +1,5 @@
 .DS_Store
+.lldbinit
 /.build
 /Packages
 xcuserdata/
