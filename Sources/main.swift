@@ -27,15 +27,8 @@ let firstInactiveApp = NSWorkspace.shared.runningApplications.first {
 }
 
 guard let firstInactiveApp else {
-    if windowList.count <= 1 {
-        print("No inactive app to switch to")
-        exit(0)
-    }
-    else {
-        // ... but there is at least one inactive window
-        print("No inactive app to switch to [\(windowList.count) window(s)]")
-        exit(2)
-    }
+    print("No inactive app to switch to [\(windowList.count) window(s)]")
+    exit(0)
 }
 
 let name = firstInactiveApp.localizedName ?? "(No name)"
