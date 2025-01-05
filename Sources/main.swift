@@ -33,4 +33,9 @@ guard let firstInactiveApp else {
 
 let name = firstInactiveApp.localizedName ?? "(No name)"
 print("Activating: \(name) [\(windowList.count) window(s)]")
-firstInactiveApp.activate()
+if #available(macOS 14, *) {
+    firstInactiveApp.activate()
+}
+else {
+    firstInactiveApp.activate(options: .activateIgnoringOtherApps)
+}
