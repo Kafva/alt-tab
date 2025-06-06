@@ -5,6 +5,9 @@ if (CommandLine.arguments.contains { $0 == "--help" || $0 == "-h" }) {
     print("""
     Basic alt-tab switcher, will switch from the active app on the current
     desktop to an inactive app on the same desktop.
+
+    NOTE: this method does not work for windows spawned by a plain executable,
+    it only works for proper .app bundles.
     """)
     exit(1)
 }
@@ -20,6 +23,8 @@ let infoList = CGWindowListCopyWindowInfo([.excludeDesktopElements, .optionOnScr
 // Only include those that are active (at layer 0)
 let windowList = infoList.filter{ $0["kCGWindowLayer"] as! Int == 0 }
 
+print("Total windows: \(windowList.count)")
+
 // Find the first inactive app that matches one of the windows on screen
 let firstInactiveApp = NSWorkspace.shared.runningApplications.first {
     !$0.isActive &&
@@ -27,15 +32,20 @@ let firstInactiveApp = NSWorkspace.shared.runningApplications.first {
 }
 
 guard let firstInactiveApp else {
-    print("No inactive app to switch to [\(windowList.count) window(s)]")
+    print("No inactive app to switch to")
     exit(0)
 }
 
-let name = firstInactiveApp.localizedName ?? "(No name)"
-print("Activating: \(name) [\(windowList.count) window(s)]")
-if #available(macOS 14, *) {
+let ok = if #available(macOS 14, *) {
     firstInactiveApp.activate()
 }
 else {
     firstInactiveApp.activate(options: .activateIgnoringOtherApps)
+};
+
+let name = firstInactiveApp.localizedName ?? "(No name)"
+if ok {
+    print("Activated: \(name)")
+} else {
+    print("Failed to activate: \(name)")
 }
