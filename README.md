@@ -8,9 +8,23 @@ predictable replacement.
 swift build -c release
 ```
 
-It will switch to the next available inactive *application*
-on the current desktop. Use Karabiner to map it to an actual key.
+It will switch to the next available inactive *application* on the current desktop.
 
+This program does not switch focus between windows of the same application, for
+that, use the builtin `Move focus to next window` shortcut.
+
+For a more complete solution see
+[lwouis/alt-tab-macOS](https://github.com/lwouis/alt-tab-macos).
+
+## Remap methods
+
+### skhd
+```bash
+# ~/.skhdrc
+lalt - tab : alt-tab
+```
+
+### Karabiner
 ```json
 {
     "description": "Alt-tab for current workspace",
@@ -29,8 +43,3 @@ on the current desktop. Use Karabiner to map it to an actual key.
     ]
 }
 ```
-
-This program does not switch focus between windows of the same application, for
-that, use the builtin `Move focus to next window` shortcut.
-
-For a more complete solution see [lwouis/alt-tab-macOS](https://github.com/lwouis/alt-tab-macos).
